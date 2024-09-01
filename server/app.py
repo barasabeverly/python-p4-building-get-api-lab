@@ -20,19 +20,38 @@ def index():
 
 @app.route('/bakeries')
 def bakeries():
-    return ''
+    # Query all bakeries from the database
+    bakeries = Bakery.query.all()
+    # Serialize the list of bakeries
+    bakery_list = [bakery.to_dict() for bakery in bakeries]
+    return jsonify(bakery_list)
 
+# GET /bakeries/<int:id>: returns a single bakery as JSON with its baked goods nested in a list
 @app.route('/bakeries/<int:id>')
 def bakery_by_id(id):
-    return ''
+        # Query the bakery by its ID
+    bakery = Bakery.query.get(id)
+    if bakery:
+        # Serialize the bakery with nested baked goods
+        return jsonify(bakery.to_dict(nested=True))
+    return jsonify({'error': 'Bakery not found'}), 404
 
 @app.route('/baked_goods/by_price')
 def baked_goods_by_price():
-    return ''
+        # Query all baked goods sorted by price in descending order
+    baked_goods = BakedGood.query.order_by(BakedGood.price.desc()).all()
+    # Serialize the list of baked goods
+    baked_goods_list = [good.to_dict() for good in baked_goods]
+    return jsonify(baked_goods_list)
 
 @app.route('/baked_goods/most_expensive')
 def most_expensive_baked_good():
-    return ''
+        # Query the most expensive baked good
+    most_expensive = BakedGood.query.order_by(BakedGood.price.desc()).first()
+    if most_expensive:
+        # Serialize the most expensive baked good
+        return jsonify(most_expensive.to_dict())
+    return jsonify({'error': 'No baked goods found'}), 404
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
